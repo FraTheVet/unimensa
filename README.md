@@ -5,7 +5,7 @@
 **Requirements:**
 - Eclipse Luna
 - Java 8
-- [JDBC42](https://jdbc.postgresql.org/download/postgresql-9.4.1207.jar)
+- JDBC (Included in Java8)
 
 Repository is made to be cloned inside eclipse workspace.
 In a terminal type:
