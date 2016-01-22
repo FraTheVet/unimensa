@@ -19,18 +19,22 @@ public class Functionality {
 	 * Also contains what was in DBSync.java, for connecting to a DB
 	 */
 	// just an idea for the signature
-	public void connect(String username, String password) {
+	public int connect(String username, String password) {
 		// connects to our UniMensa DB
 		try {
-			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mensaDev",
-					username, password); // substitute
-											// jdbc:postgresql://localhost:5432/mensaDev
-											// with custom URI of your DB
+			Class.forName("org.postgresql.Driver");
+			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mensaDev",	username, password);
+			// substitute jdbc:postgresql://localhost:5432/mensaDev with custom URI of your DB
 			System.out.println("Connected to Mensa");
 			database.setAutoCommit(true);
 			System.out.println("Autocommit active");
+			return 0;
 		} catch (SQLException e) {
 			System.out.println("DB is offline or Username/Password are wrong");
+			return -1;
+		} catch (ClassNotFoundException ex){
+			System.out.println("Driver for Postgres not found");
+			return -2;
 		}
 	}
 
@@ -39,15 +43,21 @@ public class Functionality {
 		return database;
 	}
 
-	public void setConnection(String URI, String uname, String pw) {
+	public int setConnection(String URI, String uname, String pw) {
 		// setter for custom DB Locations
 		try {
+			Class.forName("org.postgresql.Driver");
 			database = DriverManager.getConnection(URI, uname, pw);
 			System.out.println("Connected to " + URI);
 			database.setAutoCommit(true);
 			System.out.println("Autocommit active");
+			return 0;
 		} catch (SQLException e) {
 			System.out.println("DB is offline or Username/Password are wrong");
+			return -1;
+		} catch (ClassNotFoundException ex){
+			System.out.println("Driver for Postgres not found");
+			return -2;
 		}
 	}
 
@@ -144,6 +154,17 @@ public class Functionality {
 				b++;
 			}
 			System.out.println("Data read.");
+			for (int l = 0; l < readString.length; l++) {
+				  for (int i = 0; i <readString[l].length; i++) {
+					  if (i > (readString[l].length - 1) || (i -(readString[l].length - 1)) % readString[l].length == 0)
+					  {
+						  System.out.println(readString[l][i]);
+					  }
+					  else {
+						  System.out.print(readString[l][i] + ", ");
+					  }
+				  }
+			  }
 		} catch (SQLException e) {
 			System.out.println("Connection lost while committing Read query.");
 		}
