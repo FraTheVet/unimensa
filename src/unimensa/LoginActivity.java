@@ -1,11 +1,5 @@
 package unimensa;
 
-import java.util.Arrays;
-
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,12 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.image.Image;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -33,19 +22,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class LoginActivity {
 	private MainWindow accessFunc;
-	private Stage loginstage = new Stage();
 	private Scene scene;
 	private GridPane grid;
 	private ColumnConstraints cc;
 	private TabPane tabs;
-	private Tab normal;
+	private Tab people;
 	private Tab admin;
-	private VBox normalVBox;
+	private VBox peopleVBox;
 	private VBox adminVBox;
 	private ComboBox<String> knownQueries;
 	private String[][] dataArray;
@@ -61,41 +47,34 @@ public class LoginActivity {
 	private Button login;
 	private HBox hbLogin;
 
-	public Stage start() {
-		loginstage.setTitle("DataBase Handler - " + MetaData.username + " logged in");
-		// loginstage.setMinHeight(325);
-		// loginstage.setMinWidth(500);
-		loginstage.getIcons().add(new Image("file:resources/icon/icon.png"));
-		loginstage.setFullScreen(true);
-		loginstage.show();
-
+	public Scene start() {
 		tabs = new TabPane();
-
 		scene = new Scene(tabs, 500, 600);
-		loginstage.setScene(scene);
 
-		normal = new Tab("Student/Professor/academic Staff");
+		people = new Tab("Student/Professor/academic Staff");
 		admin = new Tab("Administrator");
-		tabs.getTabs().add(normal);
+		tabs.getTabs().add(people);
 		tabs.getTabs().add(admin);
 		tabs.setPadding(new Insets(10, 10, 10, 10));
 
-		normalVBox = new VBox();
+		PeoplePanel peoplepanel = new PeoplePanel();
+		peopleVBox = peoplepanel.start();
+		
 		adminVBox = new VBox();
-		normalVBox.setPadding(new Insets(10, 5, 10, 5));
+		peopleVBox.setPadding(new Insets(10, 5, 10, 5));
 		adminVBox.setPadding(new Insets(10, 5, 10, 5));
-		normal.setContent(normalVBox);
+		people.setContent(peopleVBox);
 		admin.setContent(adminVBox);
 
-		VBox tableVBox = new VBox();
-		tableVBox.setSpacing(5);
-		tableVBox.setPadding(new Insets(10, 0, 0, 10));
+		//VBox tableVBox = new VBox();
+		//tableVBox.setSpacing(5);
+		//tableVBox.setPadding(new Insets(10, 0, 0, 10));
 
-		knownQueries = new ComboBox<String>();
-		knownQueries.setPromptText("Select something you want to see");
-
-		knownQueries.getItems().add("UniMensa Table");
-		knownQueries.getItems().add("Prova table");
+//		knownQueries = new ComboBox<String>();
+//		knownQueries.setPromptText("Select something you want to see");
+//		knownQueries.getItems().add("UniMensa Table");
+//		knownQueries.getItems().add("People Table");
+//		knownQueries.getItems().add("test Table");
 
 		adminText = new Text("Chose the DB you want to log in to");
 		adminText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
@@ -123,7 +102,7 @@ public class LoginActivity {
 		login.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				String[][] staff = MetaData.func.read("staff", "id, surname");
+				String[][] staff = MetaData.func.read("employee", "id, surname");
 				String[] credentials = new String[] { idTextField.getText(), pwTextField.getText() };
 				boolean logged = false;
 				for (String[] memberCredentials : staff) {
@@ -141,47 +120,50 @@ public class LoginActivity {
 				}
 			}
 		});
+		//peopleVBox.getChildren().add(/*knownQueries*/ peoplepanel.start());
+		//peopleVBox.getChildren().add(tableVBox);
 
-		normalVBox.getChildren().add(knownQueries);
-		normalVBox.getChildren().add(tableVBox);
-
-		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-				tableVBox.getChildren().clear();
-				root = new StackPane();
-				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
-					dataArray = MetaData.func.read("unimensa", "location, tables, capacity");
-					data = FXCollections.observableArrayList();
-					titles = new String[] { "location", "tables", "capacity" };
-				}
-				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
-					dataArray = MetaData.func.read("prova", "name, surname, age, id");
-					data = FXCollections.observableArrayList();
-					titles = new String[] { "name", "surname", "age", "id" };
-				}
-				data.add(titles);
-				data.addAll(Arrays.asList(dataArray));
-				data.remove(0);
-				TableView<String[]> table = new TableView<>();
-				for (int i = 0; i < dataArray[0].length; i++) {
-					TableColumn tc = new TableColumn(titles[i]);
-					final int colNo = i;
-					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
-						@Override
-						public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
-							return new SimpleStringProperty((p.getValue()[colNo]));
-						}
-					});
-					tc.setPrefWidth(90);
-					table.getColumns().add(tc);
-				}
-				table.setItems(data);
-				root.getChildren().add(table);
-				tableVBox.getChildren().add(root);
-
-			}
-		});
-		return loginstage;
+//		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
+//			@Override
+//			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+//				tableVBox.getChildren().clear();
+//				root = new StackPane();
+//				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
+//					dataArray = MetaData.func.read("unimensa", "location, tables, capacity");
+//					data = FXCollections.observableArrayList();
+//					titles = new String[] { "location", "tables", "capacity" };
+//				}
+//				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
+//					dataArray = MetaData.func.read("people", "role, location, discount");
+//					data = FXCollections.observableArrayList();
+//					titles = new String[] { "people", "role", "location", "discount" };
+//				}
+//				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
+//					dataArray = MetaData.func.read("people", "role, location, discount");
+//					data = FXCollections.observableArrayList();
+//					titles = new String[] { "people", "role", "location", "discount" };
+//				}
+//				data.add(titles);
+//				data.addAll(Arrays.asList(dataArray));
+//				data.remove(0);
+//				TableView<String[]> table = new TableView<>();
+//				for (int i = 0; i < dataArray[0].length; i++) {
+//					TableColumn tc = new TableColumn(titles[i]);
+//					final int colNo = i;
+//					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
+//						@Override
+//						public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
+//							return new SimpleStringProperty((p.getValue()[colNo]));
+//						}
+//					});
+//					tc.setPrefWidth(90);
+//					table.getColumns().add(tc);
+//				}
+//				table.setItems(data);
+//				root.getChildren().add(table);
+//				tableVBox.getChildren().add(root);
+//			}
+//		});
+		return scene;
 	}
 }

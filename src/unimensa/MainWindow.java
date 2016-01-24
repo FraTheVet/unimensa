@@ -144,10 +144,11 @@ public class MainWindow extends Application {
 				else{
 					MetaData.username = userTextField.getText();
 					MetaData.password = pwBox.getText();
-					primaryStage.close();
 					LoginActivity hi = new LoginActivity();
 					MetaData.func=func;
-					hi.start();
+					primaryStage.setTitle("DataBase Handler - " + MetaData.username + " logged in");
+					primaryStage.setScene(hi.start());
+					
 				}
 					
 			}
