@@ -1,6 +1,7 @@
 package unimensa;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class Functionality {
 	Connection database;
@@ -127,17 +128,14 @@ public class Functionality {
 		}
 	}
 	
-	public String[][] read(String tableName, String thingsToSeeSeparatedByCommas) {
-		String readTableSQL = "SELECT " + thingsToSeeSeparatedByCommas + " FROM " + tableName;
-		int columns = 0;
-		for (int i = 0; i < thingsToSeeSeparatedByCommas.length(); i++) {
-			if (thingsToSeeSeparatedByCommas.charAt(i) == ',') {
-				columns++;
-			}
+	public String[][] read(String tableName, String[] attributes) {
+		String thingsToSeeSeparatedByCommas="";
+		for (int i =0; i< attributes.length-1; i++){
+			thingsToSeeSeparatedByCommas+=(attributes[i]+", ");
 		}
-		columns++;
-		String[] columnNames = new String[columns];
-		columnNames = thingsToSeeSeparatedByCommas.split(", ");
+		thingsToSeeSeparatedByCommas+=attributes[attributes.length-1];
+		String readTableSQL = "SELECT " + thingsToSeeSeparatedByCommas + " FROM " + tableName;
+		int columns = attributes.length;
 		String[][] readString = null;
 		try {
 			read = database.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -146,8 +144,54 @@ public class Functionality {
 			resultRead.last();
 			int rows = resultRead.getRow();
 			resultRead.beforeFirst();
-			readString = new String[rows][columns];
-			int b = 0;
+			readString = new String[rows+1][columns];
+			int b = 1;
+			readString[0]=attributes;
+			while (resultRead.next()) {
+				for (int a = 0; a < columns; a++) {
+					readString[b][a] = resultRead.getString(attributes[a]);
+				}
+				b++;
+			}
+			System.out.println("Data read.");
+		} catch (SQLException e) {
+			System.out.println("Connection lost while committing Read query.");
+		}
+		return readString;
+	}
+	public String[][] read(String query) {
+		int columns = 0;
+		String[] components = query.split(" ");
+		ArrayList<String> titles = new ArrayList<String>();
+		int lastcomponent=0;
+		for (int i = 0; i < components.length; i++) {
+			if (components[i].toUpperCase().equals("SELECT")) {
+				for (int j=i+1; j< components.length;j++){
+					if (components[j].charAt(components[j].length()-1)==(44)){
+						titles.add(components[j].substring(0, components[j].length()-1));
+						columns++;
+						lastcomponent=j+1;
+					}
+				}
+				titles.add(components[lastcomponent]);
+				columns++;
+			}
+		}
+		String[] columnNames = new String[columns];
+		for (int i=0; i< columns; i++){
+			columnNames[i]=titles.get(i);
+		}
+		String[][] readString = null;
+		try {
+			read = database.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			resultRead = read.executeQuery(query);
+			resultRead.last();
+			int rows = resultRead.getRow();
+			resultRead.beforeFirst();
+			readString = new String[rows+1][columns];
+			int b = 1;
+			readString[0]=columnNames;
 			while (resultRead.next()) {
 				for (int a = 0; a < columns; a++) {
 					readString[b][a] = resultRead.getString(columnNames[a]);
@@ -155,19 +199,9 @@ public class Functionality {
 				b++;
 			}
 			System.out.println("Data read.");
-			for (int l = 0; l < readString.length; l++) {
-				  for (int i = 0; i <readString[l].length; i++) {
-					  if (i > (readString[l].length - 1) || (i -(readString[l].length - 1)) % readString[l].length == 0)
-					  {
-						  System.out.println(readString[l][i]);
-					  }
-					  else {
-						  System.out.print(readString[l][i] + ", ");
-					  }
-				  }
-			  }
 		} catch (SQLException e) {
 			System.out.println("Connection lost while committing Read query.");
+			e.printStackTrace();
 		}
 		return readString;
 	}
