@@ -160,8 +160,6 @@ public class MainWindow extends Application {
 		return func;
 	}
 
-
-
 	/*
 	  public static void main(String[] args) { 
 		  // Some rows of testing the Functionality class, pretty straightforward

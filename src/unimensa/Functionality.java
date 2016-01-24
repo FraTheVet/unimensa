@@ -25,7 +25,7 @@ public class Functionality {
 		// connects to our UniMensa DB
 		try {
 			Class.forName("org.postgresql.Driver");
-			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mensaDev",	username, password);
+			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Mensa",	username, password);
 			// substitute jdbc:postgresql://localhost:5432/mensaDev with custom URI of your DB
 			System.out.println("Connected to Mensa");
 			database.setAutoCommit(true);

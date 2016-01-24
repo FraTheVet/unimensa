@@ -30,7 +30,6 @@ public class PeoplePanel{
 	 */
 	public VBox start(){
 		vbox = new VBox();
-		System.out.println("fajshdfkl");
 		tableVBox = new VBox();
 		tableVBox.setSpacing(5);
 		tableVBox.setPadding(new Insets(10, 0, 0, 10));
@@ -47,19 +46,19 @@ public class PeoplePanel{
 				tableVBox.getChildren().clear();
 				root = new StackPane();
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
-					dataArray = MetaData.func.read("unimensa", "location, tables, capacity");
+					dataArray = MetaData.func.read("unimensa", new String[]{"location", "tables", "capacity"});
 					data = FXCollections.observableArrayList();
 					titles = new String[] { "location", "tables", "capacity" };
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
-					dataArray = MetaData.func.read("people", "role, location, discount");
+					dataArray = MetaData.func.read("people", new String[]{"role", "location", "discount"});
 					data = FXCollections.observableArrayList();
 					titles = new String[] { "people", "role", "location", "discount" };
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
-					dataArray = MetaData.func.read("people", "role, location, discount");
+					dataArray = MetaData.func.read("employee", new String[]{"id"});
 					data = FXCollections.observableArrayList();
-					titles = new String[] { "people", "role", "location", "discount" };
+					titles = new String[] { "people"};
 				}
 				data.add(titles);
 				data.addAll(Arrays.asList(dataArray));
