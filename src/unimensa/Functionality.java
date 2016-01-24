@@ -8,6 +8,7 @@ public class Functionality {
 	PreparedStatement update;
 	PreparedStatement delete;
 	PreparedStatement deleteAll;
+	PreparedStatement send;
 	Statement read;
 	ResultSet resultRead;
 
@@ -125,7 +126,7 @@ public class Functionality {
 			System.out.println("Connection lost while executing DeleteAll query");
 		}
 	}
-
+	
 	public String[][] read(String tableName, String thingsToSeeSeparatedByCommas) {
 		String readTableSQL = "SELECT " + thingsToSeeSeparatedByCommas + " FROM " + tableName;
 		int columns = 0;

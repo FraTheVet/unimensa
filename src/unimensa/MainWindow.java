@@ -14,10 +14,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -26,19 +26,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.util.Arrays;
-
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.VBox;import javafx.util.Callback;
 
 public class MainWindow extends Application {
 	Functionality func;
@@ -75,6 +62,7 @@ public class MainWindow extends Application {
 		primaryStage.setMinHeight(325);
 		primaryStage.setMinWidth(500);
 		primaryStage.setResizable(false);
+		primaryStage.getIcons().add(new Image("file:resources/icon/icon.png"));
 		primaryStage.show();
 
 		grid = new GridPane();
@@ -150,7 +138,7 @@ public class MainWindow extends Application {
 					grid.add(failedLogin, 0, 7);
 				}
 				else if (connected==-2){
-					failedLogin.setText("DB for PostgreSQL missing");
+					failedLogin.setText("Drivers for PostgreSQL missing");
 					grid.add(failedLogin, 0, 7);
 				}
 				else{
@@ -158,6 +146,7 @@ public class MainWindow extends Application {
 					MetaData.password = pwBox.getText();
 					primaryStage.close();
 					LoginActivity hi = new LoginActivity();
+					MetaData.func=func;
 					hi.start();
 				}
 					
@@ -170,83 +159,7 @@ public class MainWindow extends Application {
 		return func;
 	}
 
-	class LoginActivity {
-		private MainWindow accessFunc;
-		private Stage loginstage = new Stage();
-		private Scene scene;
-		private GridPane grid;
-		private ColumnConstraints cc;
-		private TabPane tabs;
-		private Tab normal;
-		private Tab admin;
-		private VBox normalVBox;
-		private VBox adminVBox;
-		private ComboBox knownQueries;
 
-		public Stage start() {
-			loginstage.setTitle("DataBase Handler - " + MetaData.username + " logged in");
-			// loginstage.setMinHeight(325);
-			// loginstage.setMinWidth(500);
-			loginstage.setFullScreen(true);
-			loginstage.show();
-
-			tabs = new TabPane();
-
-			scene = new Scene(tabs, 500, 600);
-			loginstage.setScene(scene);
-
-			normal = new Tab("Student/Professor/academic Staff");
-			admin = new Tab("Administrator");
-			tabs.getTabs().add(normal);
-			tabs.getTabs().add(admin);
-			tabs.setPadding(new Insets(10, 10, 10, 10));
-
-			normalVBox = new VBox();
-			adminVBox = new VBox();
-			normalVBox.setPadding(new Insets(10, 5, 10, 5));
-			adminVBox.setPadding(new Insets(10, 5, 10, 5));
-			normal.setContent(normalVBox);
-			admin.setContent(adminVBox);
-
-			TableView<String> table = new TableView<String>();
-			VBox tableVBox = new VBox();
-			tableVBox.setSpacing(5);
-			tableVBox.setPadding(new Insets(10, 0, 0, 10));
-			tableVBox.getChildren().add(table);
-
-			knownQueries = new ComboBox();
-			knownQueries.setPromptText("Select something you want to see");
-			knownQueries.getItems().add("UniMensa Table");
-			normalVBox.getChildren().add(knownQueries);
-			normalVBox.getChildren().add(tableVBox);
-
-			knownQueries.valueProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-					if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
-						TableColumn loc = new TableColumn("location");
-						TableColumn tab = new TableColumn("tables");
-						TableColumn cap = new TableColumn("capacity");
-
-						table.getColumns().addAll(loc, tab, cap);
-						String[][] content = func.read("unimensa", "location, tables, capacity");
-						String[][] flipped = new String[content.length][content[0].length];
-						for (int i = 0; i < flipped.length; i++){
-							for (int j = 0; j < flipped[i].length; j++){
-								flipped[i][j] = content[j][i];
-							}
-						}
-						for (int i = 0; i < flipped.length; i++){
-							//fill the table
-						}
-						table.setEditable(false);
-					}
-				}
-			});
-			return loginstage;
-		}
-
-	}
 
 	/*
 	  public static void main(String[] args) { 
