@@ -65,7 +65,7 @@ public class PeoplePanel{
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
 					try{
 						night = Integer.parseInt(JOptionPane.showInputDialog("Type 0 for Lunch or 1 for Dinner"));
-						if (night!=0||night!=1){
+						if (night!=0&&night!=1){
 							JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
 							night = 0;
 						}
