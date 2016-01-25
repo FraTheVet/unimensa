@@ -4,14 +4,14 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class Functionality {
-	Connection database;
-	PreparedStatement insert;
-	PreparedStatement update;
-	PreparedStatement delete;
-	PreparedStatement deleteAll;
-	PreparedStatement send;
-	Statement read;
-	ResultSet resultRead;
+	private Connection database;
+	private PreparedStatement insert;
+	private PreparedStatement update;
+	private PreparedStatement delete;
+	private PreparedStatement deleteAll;
+	private PreparedStatement send;
+	private Statement read;
+	private ResultSet resultRead;
 
 	/*
 	 * add, remove, read queries gotta find a smart way for the signatures since
@@ -25,16 +25,18 @@ public class Functionality {
 		// connects to our UniMensa DB
 		try {
 			Class.forName("org.postgresql.Driver");
-			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Mensa",	username, password);
-			// substitute jdbc:postgresql://localhost:5432/mensaDev with custom URI of your DB
+			database = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Mensa",
+					username, password);
+			// substitute jdbc:postgresql://localhost:5432/mensaDev with custom
+			// URI of your DB
 			System.out.println("Connected to Mensa");
-			database.setAutoCommit(true);
-			System.out.println("Autocommit active");
+			database.setAutoCommit(false);
+			System.out.println("Autocommit not active");
 			return 0;
 		} catch (SQLException e) {
 			System.out.println("DB is offline or Username/Password are wrong");
 			return -1;
-		} catch (ClassNotFoundException ex){
+		} catch (ClassNotFoundException ex) {
 			System.out.println("Driver for Postgres not found");
 			return -2;
 		}
@@ -51,34 +53,42 @@ public class Functionality {
 			Class.forName("org.postgresql.Driver");
 			database = DriverManager.getConnection(URI, uname, pw);
 			System.out.println("Connected to " + URI);
-			database.setAutoCommit(true);
+			database.setAutoCommit(false);
 			System.out.println("Autocommit active");
 			return 0;
 		} catch (SQLException e) {
 			System.out.println("DB is offline or Username/Password are wrong");
 			return -1;
-		} catch (ClassNotFoundException ex){
+		} catch (ClassNotFoundException ex) {
 			System.out.println("Driver for Postgres not found");
 			return -2;
 		}
 	}
 
-	public void insert(String tableName, String attributeNamesSeparatedByCommas,
+	public boolean insert(String tableName, String[] attributeNames,
 			String[] attributeValues) {
-		String insertTableSQL = "INSERT INTO " + tableName + "(location, capacity, tables) VALUES"
-				+ "(?,?,?)";
+		
+		String namesSeparated="(";
+		String valuesSeparated ="(";
+		for (int i =0; i<attributeNames.length-1;i++){
+			namesSeparated+=(attributeNames[i]+", ");
+			valuesSeparated+=("'"+attributeValues[i]+"', ");
+		}
+		namesSeparated+=(attributeNames[attributeNames.length-1]+")");
+		valuesSeparated+=("'"+attributeValues[attributeValues.length-1]+"')");
+		String insertTableSQL = "INSERT INTO " + tableName + namesSeparated+" VALUES" + valuesSeparated;
 		try {
 			insert = database.prepareStatement(insertTableSQL);
-			insert.setString(1, attributeValues[0]);
-			insert.setInt(2, Integer.parseInt(attributeValues[1]));
-			insert.setInt(3, Integer.parseInt(attributeValues[2]));
 			System.out.println("Updating Insert query...");
 			insert.executeUpdate(); // still not commit
 			System.out.println("Updated. Committing Insert query...");
 			database.commit(); // now commit
 			System.out.println("Committed Insert query");
+			return true;
 		} catch (SQLException e) {
 			System.out.println("Connection lost while committing Insert query.");
+			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -86,7 +96,6 @@ public class Functionality {
 			String updateValue) {
 		String updateTableSQL = "UPDATE " + tableName + " SET " + updateName + " = '" + updateValue
 				+ "' WHERE " + keyName + " = '" + keyValue + "'";
-		System.out.println(updateTableSQL);
 		try {
 			update = database.prepareStatement(updateTableSQL);
 			System.out.println("Updating Update query...");
@@ -127,13 +136,28 @@ public class Functionality {
 			System.out.println("Connection lost while executing DeleteAll query");
 		}
 	}
+
+	public boolean customSendQuery(String query){
+		try {
+			send = database.prepareStatement(query);
+			System.out.println("Updating Send query...");
+			send.executeUpdate(); // still not commit
+			System.out.println("Updated. Committing Send query...");
+			database.commit(); // now commit
+			System.out.println("Committed Send query");
+			return true;
+		} catch (SQLException e) {
+			System.out.println("Connection lost while executing Send query");
+			return false;
+		}
+	}
 	
 	public String[][] read(String tableName, String[] attributes) {
-		String thingsToSeeSeparatedByCommas="";
-		for (int i =0; i< attributes.length-1; i++){
-			thingsToSeeSeparatedByCommas+=(attributes[i]+", ");
+		String thingsToSeeSeparatedByCommas = "";
+		for (int i = 0; i < attributes.length - 1; i++) {
+			thingsToSeeSeparatedByCommas += (attributes[i] + ", ");
 		}
-		thingsToSeeSeparatedByCommas+=attributes[attributes.length-1];
+		thingsToSeeSeparatedByCommas += attributes[attributes.length - 1];
 		String readTableSQL = "SELECT " + thingsToSeeSeparatedByCommas + " FROM " + tableName;
 		int columns = attributes.length;
 		String[][] readString = null;
@@ -144,9 +168,9 @@ public class Functionality {
 			resultRead.last();
 			int rows = resultRead.getRow();
 			resultRead.beforeFirst();
-			readString = new String[rows+1][columns];
+			readString = new String[rows + 1][columns];
 			int b = 1;
-			readString[0]=attributes;
+			readString[0] = attributes;
 			while (resultRead.next()) {
 				for (int a = 0; a < columns; a++) {
 					readString[b][a] = resultRead.getString(attributes[a]);
@@ -159,18 +183,23 @@ public class Functionality {
 		}
 		return readString;
 	}
+
 	public String[][] read(String query) {
 		int columns = 0;
-		String[] components = query.split(" ");
+		String[] components = query.split("\u0020");
 		ArrayList<String> titles = new ArrayList<String>();
-		int lastcomponent=0;
+		int lastcomponent = 0;
 		for (int i = 0; i < components.length; i++) {
 			if (components[i].toUpperCase().equals("SELECT")) {
-				for (int j=i+1; j< components.length;j++){
-					if (components[j].charAt(components[j].length()-1)==(44)){
-						titles.add(components[j].substring(0, components[j].length()-1));
-						columns++;
-						lastcomponent=j+1;
+				for (int j = i + 1; j < components.length; j++) {
+					if (!components[j].toUpperCase().equals("DISTINCT")){
+						if (components[j].charAt(components[j].length() - 1) == (44)) {
+							titles.add(components[j].substring(0, components[j].length() - 1));
+							columns++;
+						} else {
+							lastcomponent = j;
+							break;
+						}
 					}
 				}
 				titles.add(components[lastcomponent]);
@@ -178,8 +207,13 @@ public class Functionality {
 			}
 		}
 		String[] columnNames = new String[columns];
-		for (int i=0; i< columns; i++){
-			columnNames[i]=titles.get(i);
+		for (int i = 0; i < columns; i++) {
+			if (titles.get(i).contains(".")) {
+				String[] complex = titles.get(i).split("\\.");
+				columnNames[i] = complex[complex.length - 1];
+			} else {
+				columnNames[i] = titles.get(i);
+			}
 		}
 		String[][] readString = null;
 		try {
@@ -189,9 +223,9 @@ public class Functionality {
 			resultRead.last();
 			int rows = resultRead.getRow();
 			resultRead.beforeFirst();
-			readString = new String[rows+1][columns];
+			readString = new String[rows + 1][columns];
 			int b = 1;
-			readString[0]=columnNames;
+			readString[0] = columnNames;
 			while (resultRead.next()) {
 				for (int a = 0; a < columns; a++) {
 					readString[b][a] = resultRead.getString(columnNames[a]);

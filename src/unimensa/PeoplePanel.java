@@ -1,6 +1,10 @@
 package unimensa;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import javax.swing.JOptionPane;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -23,12 +27,13 @@ public class PeoplePanel{
 	private StackPane root;
 	private String[][] dataArray;
 	private ObservableList<String[]> data;
-	private String[] titles;
+	private Calendar calendar;
+	private int night;
+	private String ingredient;
 	
-	/**
-	 * @return
-	 */
 	public VBox start(){
+		calendar=new GregorianCalendar();
+		calendar.setFirstDayOfWeek(Calendar.MONDAY);
 		vbox = new VBox();
 		tableVBox = new VBox();
 		tableVBox.setSpacing(5);
@@ -36,9 +41,12 @@ public class PeoplePanel{
 		
 		knownQueries = new ComboBox<String>();
 		knownQueries.setPromptText("Select something you want to see");
-		knownQueries.getItems().add("UniMensa Table");
-		knownQueries.getItems().add("People Table");
-		knownQueries.getItems().add("test Table");
+		knownQueries.getItems().add("Mensa details");
+		knownQueries.getItems().add("Prices");
+		knownQueries.getItems().add("Day Dishes");
+		knownQueries.getItems().add("Week Dishes");
+		knownQueries.getItems().add("Ingredients of a specific plate");
+		knownQueries.getItems().add("Distributors of a specific plate");
 		
 		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
@@ -48,24 +56,52 @@ public class PeoplePanel{
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
 					dataArray = MetaData.func.read("unimensa", new String[]{"location", "tables", "capacity"});
 					data = FXCollections.observableArrayList();
-					titles = new String[] { "location", "tables", "capacity" };
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
-					dataArray = MetaData.func.read("people", new String[]{"role", "location", "discount"});
+					dataArray = MetaData.func.read("menuprice", new String[]{"discount", "fullmenu", "lightmenu", "extralightmenu"});
 					data = FXCollections.observableArrayList();
-					titles = new String[] { "people", "role", "location", "discount" };
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
-					dataArray = MetaData.func.read("employee", new String[]{"id"});
+					try{
+						night = Integer.parseInt(JOptionPane.showInputDialog("Type 0 for Lunch or 1 for Dinner"));
+						if (night!=0||night!=1){
+							JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
+							night = 0;
+						}
+					} catch (NumberFormatException e){
+						JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
+						night = 0;
+					}
+					
+					dataArray = MetaData.func.read("select dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.dow = "+calendar.DAY_OF_WEEK+" and dailymenu.wom = "+calendar.WEEK_OF_MONTH+" and dailymenu.night = "+night);
 					data = FXCollections.observableArrayList();
-					titles = new String[] { "people"};
 				}
-				data.add(titles);
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 3) {
+					dataArray = MetaData.func.read("select dailymenu.dow, dailymenu.night, dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.wom = "+calendar.WEEK_OF_MONTH);
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 4) {
+					ingredient = JOptionPane.showInputDialog("Which dish do you want to get the ingredients of?");
+					dataArray = MetaData.func.read("select distinct ingredient.name from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and dish.name = '"+ingredient+"'");
+					data = FXCollections.observableArrayList();
+					if (data.equals(null)){
+						JOptionPane.showMessageDialog(null, "No data found for ingredient "+ingredient+".\n\n Showing nothing.");
+					}
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 5) {
+					ingredient = JOptionPane.showInputDialog("Which dish do you want to get the distributors of?");
+					dataArray = MetaData.func.read("select distinct ingredient.name, distributor.id, distributor.typeofprovision from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and ingredient.id = provided.ingredientid and distributor.id = provided.distributorid and dish.name = '"+ingredient+"'");
+					data = FXCollections.observableArrayList();
+					if (data.equals(null)){
+						JOptionPane.showMessageDialog(null, "No data found for ingredient "+ingredient+".\n\n Showing nothing.");
+					}
+				}
+				
 				data.addAll(Arrays.asList(dataArray));
 				data.remove(0);
 				TableView<String[]> table = new TableView<>();
 				for (int i = 0; i < dataArray[0].length; i++) {
-					TableColumn tc = new TableColumn(titles[i]);
+					TableColumn tc = new TableColumn(dataArray[0][i]);
 					final int colNo = i;
 					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
 						@Override
