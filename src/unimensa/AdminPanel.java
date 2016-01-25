@@ -89,7 +89,7 @@ public class AdminPanel {
 				}
 				if (logged){
 					System.out.println("Successfully logged in to the Admin Panel");
-					vbox = mainViewAdmin();
+					vbox = tabManagmentAdmin();
 					update();
 				}
 				else{
@@ -99,19 +99,38 @@ public class AdminPanel {
 		});
 		return vbox;
 	}
-	private VBox mainViewAdmin(){
+	private VBox tabManagmentAdmin(){
 		TabPane tabs = new TabPane();
-		Tab insertion = new Tab("View Data");
-		Tab editing = new Tab("Editing Data");
-		tabs.getTabs().add(insertion);
-		tabs.getTabs().add(editing);
+		Tab viewingtab = new Tab("View Data");
+		Tab insertiontab = new Tab("Insert Data");
+		Tab deletiontab = new Tab("Delete Data");
+		Tab editingtab = new Tab("Edit Data");
+		tabs.getTabs().add(viewingtab);
+		tabs.getTabs().add(insertiontab);
+		tabs.getTabs().add(deletiontab);
+		tabs.getTabs().add(editingtab);
 		tabs.setPadding(new Insets(10,10,10,10));
 		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-				
+			
+		VBox viewingbox = tableViewAdmin();
 		VBox insertionbox = new VBox();
+		VBox deletionbox = new VBox();
+		VBox editingbox = new VBox();
 		VBox replacementbox = new VBox();
 		
-		insertion.setContent(insertionbox);
+		viewingtab.setContent(viewingbox);
+		insertiontab.setContent(insertionbox);
+		deletiontab.setContent(deletionbox);
+		editingtab.setContent(editingbox);
+		
+		replacementbox.getChildren().add(tabs);
+		return replacementbox;
+	}
+	
+	private VBox tableViewAdmin(){
+		VBox vbox = new VBox();
+		VBox insertionbox = new VBox();
+		vbox.getChildren().add(insertionbox);
 		
 		knownQueries = new ComboBox<String>();
 		knownQueries.setPromptText("See any of the available tables!");
@@ -163,7 +182,8 @@ public class AdminPanel {
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 7) {
-					dataArray = MetaData.func.read("employee", new String[]{"id","contracttype","firstname","surname","dateofbirth","address","entryyear","joblocation"});
+					dataArray = MetaData.func.read("select distinct employee.id, employee.contracttype, employee.firstname, employee.surname, chef.licenceno, staffmember.role, employee.dateofbirth, employee.address, employee.entryyear, employee.joblocation "
+							+ "from (employee full join chef on employee.id = chef.id) full join staffmember on employee.id = staffmember.id");
 					data = FXCollections.observableArrayList();
 				}
 				data.addAll(Arrays.asList(dataArray));
@@ -189,12 +209,9 @@ public class AdminPanel {
 		});
 		insertionbox.getChildren().add(knownQueries);
 		insertionbox.getChildren().add(tableVBox);
-		replacementbox.getChildren().add(tabs);
-		//replacementbox.getChildren().add(knownQueries);
-		//replacementbox.getChildren().add(tableVBox);
-		
-		return replacementbox;
+		return vbox;
 	}
+	
 	private void update(){
 		LoginActivity.admin.setContent(vbox);
 	}
