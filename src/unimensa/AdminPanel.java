@@ -1,21 +1,36 @@
 package unimensa;
 
+import java.util.Arrays;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.util.Callback;
 
 public class AdminPanel {
 	private VBox vbox;
+	private VBox tableVBox;
 	private Label id;
 	private Label pw;
 	private TextField idTextField;
@@ -24,6 +39,11 @@ public class AdminPanel {
 	private HBox hbLogin;
 	private Button login;
 	private Text failedLogin;
+	private boolean logged;
+	private ComboBox<String> knownQueries;
+	private StackPane root;
+	private String[][] dataArray;
+	private ObservableList<String[]> data;
 	
 	public VBox start(){
 		vbox = new VBox();
@@ -55,25 +75,111 @@ public class AdminPanel {
 			@Override
 			public void handle(ActionEvent e) {
 				String[][] staff = MetaData.func.read("employee", new String[]{"id", "surname"});
-				String[] credentials = new String[] { idTextField.getText(), pwTextField.getText() };
-				boolean logged = false;
+				String[] credentials = new String[] { idTextField.getText(), pwTextField.getText().toLowerCase() };
+				logged = false;
 				for (String[] memberCredentials : staff) {
 					if (memberCredentials[0].equals(credentials[0])
-							&& memberCredentials[1].equals(credentials[1])) {
+							&& memberCredentials[1].toLowerCase().equals(credentials[1])) {
 						logged = true;
 						break;
 					}
 				}
 				if (logged){
 					System.out.println("Successfully logged in to the Admin Panel");
-					vbox.getChildren().remove(1);
+					vbox = mainViewAdmin();
+					update();
 				}
 				else{
 					vbox.getChildren().add(failedLogin);
 				}
 			}
 		});
-				
 		return vbox;
+	}
+	private VBox mainViewAdmin(){
+		VBox replacementbox = new VBox();
+		
+		knownQueries = new ComboBox<String>();
+		knownQueries.setPromptText("See any of the available tables!");
+		knownQueries.getItems().addAll(new String[]{"Unimensa Locations", "Dishes Offered", "University People", "Menu Prices","Chef licence",
+				"Staff roles", "Ingredients and Distributor", "All Employee Details"});
+		
+		tableVBox = new VBox();
+		tableVBox.setSpacing(5);
+		tableVBox.setPadding(new Insets(10, 0, 0, 10));
+				
+		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2){
+				tableVBox.getChildren().clear();
+				root = new StackPane();
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
+					dataArray = MetaData.func.read("unimensa", new String[]{"location", "tables", "capacity"});
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
+					dataArray = MetaData.func.read("dish", new String[]{"course", "name", "veg"});
+					dataArray[0][2] = "vegetarian";
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
+					dataArray = MetaData.func.read("people", new String[]{"universityid","role","location","discount"});
+					dataArray[0][0] = "university ID";
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 3) {
+					dataArray = MetaData.func.read("menuprice", new String[]{"discount","fullmenu","lightmenu","extralightmenu"});
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 4) {
+					dataArray = MetaData.func.read("chef", new String[]{"id","licenceno"});
+					dataArray[0][1] = "licence number";
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 5) {
+					dataArray = MetaData.func.read("staffmember", new String[]{"id","role"});
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 6) {
+					dataArray = MetaData.func.read("select ingredient.name, ingredient.quantity, distributor.id, distributor.typeofprovision from ingredient, distributor, provided where ingredient.id = provided.ingredientid and provided.distributorid = distributor.id");
+					dataArray[0][0]="ingredient";
+					dataArray[0][2] = "distributor id";
+					dataArray[0][3] = "type of provision";
+					data = FXCollections.observableArrayList();
+				}
+				if (knownQueries.getSelectionModel().getSelectedIndex() == 7) {
+					dataArray = MetaData.func.read("employee", new String[]{"id","contracttype","firstname","surname","dateofbirth","address","entryyear","joblocation"});
+					data = FXCollections.observableArrayList();
+				}
+				data.addAll(Arrays.asList(dataArray));
+				data.remove(0);
+				TableView<String[]> table = new TableView<>();
+				for (int i = 0; i < dataArray[0].length; i++) {
+					@SuppressWarnings("rawtypes")
+					TableColumn tc = new TableColumn(dataArray[0][i]);
+					final int colNo = i;
+					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
+						@Override
+						public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
+							return new SimpleStringProperty((p.getValue()[colNo]));
+						}
+					});
+					tc.setPrefWidth(90);
+					table.getColumns().add(tc);
+				}
+				table.setItems(data);
+				root.getChildren().add(table);
+				tableVBox.getChildren().add(root);
+			}
+		});
+		
+		replacementbox.getChildren().add(knownQueries);
+		replacementbox.getChildren().add(tableVBox);
+		
+		return replacementbox;
+	}
+	private void update(){
+		LoginActivity.admin.setContent(vbox);
 	}
 }
