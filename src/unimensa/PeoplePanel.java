@@ -51,19 +51,17 @@ public class PeoplePanel {
 		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public void changed(ObservableValue<? extends String> arg0,
-					String arg1, String arg2) {
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
 				tableVBox.getChildren().clear();
 				root = new StackPane();
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 0) {
-					dataArray = MetaData.func.read("unimensa", new String[] {
-							"location", "tables", "capacity" });
+					dataArray = MetaData.func.read("unimensa", new String[] { "location", "tables",
+							"capacity" });
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 1) {
-					dataArray = MetaData.func.read("menuprice", new String[] {
-							"discount", "fullmenu", "lightmenu",
-							"extralightmenu" });
+					dataArray = MetaData.func.read("menuprice", new String[] { "discount",
+							"fullmenu", "lightmenu", "extralightmenu" });
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 2) {
@@ -71,13 +69,11 @@ public class PeoplePanel {
 						night = Integer.parseInt(JOptionPane
 								.showInputDialog("Type 0 for Lunch or 1 for Dinner"));
 						if (night != 0 && night != 1) {
-							JOptionPane.showMessageDialog(null,
-									"Input not valid, default 0 set");
+							JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
 							night = 0;
 						}
 					} catch (NumberFormatException e) {
-						JOptionPane.showMessageDialog(null,
-								"Input not valid, default 0 set");
+						JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
 						night = 0;
 					}
 
@@ -85,8 +81,7 @@ public class PeoplePanel {
 							.read("select dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.dow = "
 									+ calendar.DAY_OF_WEEK
 									+ " and dailymenu.wom = "
-									+ calendar.WEEK_OF_MONTH
-									+ " and dailymenu.night = " + night);
+									+ calendar.WEEK_OF_MONTH + " and dailymenu.night = " + night);
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 3) {
@@ -103,10 +98,9 @@ public class PeoplePanel {
 							.read("select distinct ingredient.name from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and dish.name = '"
 									+ ingredient + "'");
 					data = FXCollections.observableArrayList();
-					if (dataArray.length<2) {
-						JOptionPane.showMessageDialog(null,
-								"No data found for ingredient " + ingredient
-										+ ".\n\n Showing nothing.");
+					if (dataArray.length < 2) {
+						JOptionPane.showMessageDialog(null, "No data found for ingredient "
+								+ ingredient + ".\n\n Showing nothing.");
 					}
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 5) {
@@ -117,10 +111,9 @@ public class PeoplePanel {
 							.read("select distinct ingredient.name, distributor.id, distributor.typeofprovision from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and ingredient.id = provided.ingredientid and distributor.id = provided.distributorid and dish.name = '"
 									+ ingredient + "'");
 					data = FXCollections.observableArrayList();
-					if (dataArray.length<2) {
-						JOptionPane.showMessageDialog(null,
-								"No data found for ingredient " + ingredient
-										+ ".\n\n Showing nothing.");
+					if (dataArray.length < 2) {
+						JOptionPane.showMessageDialog(null, "No data found for ingredient "
+								+ ingredient + ".\n\n Showing nothing.");
 					}
 				}
 
@@ -133,10 +126,8 @@ public class PeoplePanel {
 					final int colNo = i;
 					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
 						@Override
-						public ObservableValue<String> call(
-								CellDataFeatures<String[], String> p) {
-							return new SimpleStringProperty(
-									(p.getValue()[colNo]));
+						public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
+							return new SimpleStringProperty((p.getValue()[colNo]));
 						}
 					});
 					tc.setPrefWidth(90);

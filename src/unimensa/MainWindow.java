@@ -47,17 +47,10 @@ public class MainWindow extends Application {
 	HBox hbBtn;
 	Text failedLogin;
 	ArrayList<Object> loginItems = new ArrayList<Object>();
-	
-	/*
-	 * main class, creates window with all sub-windows no functionalities like
-	 * add data, remove data, etc... respect indentation o ve ammazzo scuoiati
-	 * let's take the standard to comment what we add and alert everyone when
-	 * you add a class and why pls <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3 <3
-	 * <3 <3 <3
-	 */
+
 	public void start(Stage primaryStage) {
 		func = new Functionality();
-		
+
 		primaryStage.setTitle("Login");
 		primaryStage.setMinHeight(325);
 		primaryStage.setMinWidth(500);
@@ -81,10 +74,10 @@ public class MainWindow extends Application {
 		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
 		grid.add(scenetitle, 0, 0, 2, 1);
 
-		dbText = new Text("Chose the DB you want to log in to");
+		dbText = new Text("Choose the DB you want to log in to");
 		dbText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
 		grid.add(dbText, 0, 1);
-		
+
 		failedLogin = new Text();
 		failedLogin.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
 		failedLogin.setFill(Color.RED);
@@ -98,7 +91,8 @@ public class MainWindow extends Application {
 		dbChose.setSelected(true);
 		dbChose2.setToggleGroup(group);
 
-		otherDBURI = new TextField("Example: jdbc:postgresql://address:port/db");
+		otherDBURI = new TextField();
+		otherDBURI.setPromptText("Example: jdbc:postgresql://address:port/db");
 		userName = new Label("Username:");
 		grid.add(userName, 0, 4);
 		userTextField = new TextField();
@@ -114,81 +108,71 @@ public class MainWindow extends Application {
 		hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
 		hbBtn.getChildren().add(btn);
 		grid.add(hbBtn, 1, 7);
-		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-            public void changed(ObservableValue<? extends Toggle> ov,
-                Toggle toggle, Toggle new_toggle) {
-                    if (dbChose2.isSelected()){
-                    	grid.add(otherDBURI, 0, 3);
-                    }
-                    else
-                        grid.getChildren().remove(otherDBURI);
-            }
-        });
-		
+		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle,
+					Toggle new_toggle) {
+				if (dbChose2.isSelected()) {
+					grid.add(otherDBURI, 0, 3);
+				} else
+					grid.getChildren().remove(otherDBURI);
+			}
+		});
+
 		btn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				if (dbChose.isSelected()) {
 					connected = func.connect(userTextField.getText(), pwBox.getText());
 				} else {
-					connected = func.setConnection(otherDBURI.getText(), userTextField.getText(), pwBox.getText());
+					connected = func.setConnection(otherDBURI.getText(), userTextField.getText(),
+							pwBox.getText());
 				}
-				if (connected==-1){
+				if (connected == -1) {
 					failedLogin.setText("Wrong credentials or DB offline/non existent");
 					pwBox.setText("");
-					if (!grid.getChildren().contains(failedLogin)){
+					if (!grid.getChildren().contains(failedLogin)) {
 						grid.add(failedLogin, 0, 7);
 					}
-				}
-				else if (connected==-2){
+				} else if (connected == -2) {
 					failedLogin.setText("Drivers for PostgreSQL missing");
 					grid.add(failedLogin, 0, 7);
-				}
-				else{
+				} else {
 					MetaData.username = userTextField.getText();
 					MetaData.password = pwBox.getText();
 					LoginActivity hi = new LoginActivity();
-					MetaData.func=func;
+					MetaData.func = func;
 					primaryStage.setTitle("DataBase Handler - " + MetaData.username + " logged in");
 					primaryStage.setScene(hi.start());
-					
+
 				}
-					
+
 			}
 		});
 	}
-	public Functionality getFunctionality(){
+
+	public Functionality getFunctionality() {
 		func = new Functionality();
 		func.connect(MetaData.username, MetaData.password);
 		return func;
 	}
 
 	/*
-	  public static void main(String[] args) { 
-		  // Some rows of testing the Functionality class, pretty straightforward
-		  Functionality func = new Functionality(); func.connect("username", "password");
-		  // substitute with real UName & PW
-		  //String[] values = { "Bolzano", "131", "145" };
-		  //String[] values2 = { "Bressanone", "98", "70" };
-		  //func.insert("unimensa", "location, tables, capacity", values);
-		  //func.insert("unimensa", "location, tables, capacity", values2);
-		  //func.update("unimensa", "location", "Bressanone", "capacity", "101");
-		  // func.delete("unimensa", "location", "Bolzano");
-		  // func.deleteAll("unimensa");
-		  String[][] readValues = func.read("unimensa", "location, tables, capacity");
-		  System.out.println("\nPrinting values:");
-		  // SUPER IMPORTANT - Keep this for loop as for a printer in the correct
-		  // format of Functionality.read method
-		  for (int l = 0; l < readValues.length; l++) {
-			  for (int i = 0; i <readValues[l].length; i++) {
-				  if (i > (readValues[l].length - 1) || (i -(readValues[l].length - 1)) % readValues[l].length == 0)
-				  {
-					  System.out.println(readValues[l][i]);
-				  }
-				  else {
-					  System.out.print(readValues[l][i] + ", ");
-				  }
-			  }
-		  }
-	  }*/
+	 * public static void main(String[] args) { // Some rows of testing the
+	 * Functionality class, pretty straightforward Functionality func = new
+	 * Functionality(); func.connect("username", "password"); // substitute with
+	 * real UName & PW //String[] values = { "Bolzano", "131", "145" };
+	 * //String[] values2 = { "Bressanone", "98", "70" };
+	 * //func.insert("unimensa", "location, tables, capacity", values);
+	 * //func.insert("unimensa", "location, tables, capacity", values2);
+	 * //func.update("unimensa", "location", "Bressanone", "capacity", "101");
+	 * // func.delete("unimensa", "location", "Bolzano"); //
+	 * func.deleteAll("unimensa"); String[][] readValues = func.read("unimensa",
+	 * "location, tables, capacity"); System.out.println("\nPrinting values:");
+	 * // SUPER IMPORTANT - Keep this for loop as for a printer in the correct
+	 * // format of Functionality.read method for (int l = 0; l <
+	 * readValues.length; l++) { for (int i = 0; i <readValues[l].length; i++) {
+	 * if (i > (readValues[l].length - 1) || (i -(readValues[l].length - 1)) %
+	 * readValues[l].length == 0) { System.out.println(readValues[l][i]); } else
+	 * { System.out.print(readValues[l][i] + ", "); } } } }
+	 */
 }

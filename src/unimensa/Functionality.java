@@ -13,14 +13,6 @@ public class Functionality {
 	private Statement read;
 	private ResultSet resultRead;
 
-	/*
-	 * add, remove, read queries gotta find a smart way for the signatures since
-	 * we have different number of attributes. A solution could be a wise usage
-	 * of arrays (see signatures) but we pass all strings, which sucks
-	 * 
-	 * Also contains what was in DBSync.java, for connecting to a DB
-	 */
-	// just an idea for the signature
 	public int connect(String username, String password) {
 		// connects to our UniMensa DB
 		try {
@@ -65,18 +57,18 @@ public class Functionality {
 		}
 	}
 
-	public boolean insert(String tableName, String[] attributeNames,
-			String[] attributeValues) {
-		
-		String namesSeparated="(";
-		String valuesSeparated ="(";
-		for (int i =0; i<attributeNames.length-1;i++){
-			namesSeparated+=(attributeNames[i]+", ");
-			valuesSeparated+=("'"+attributeValues[i]+"', ");
+	public boolean insert(String tableName, String[] attributeNames, String[] attributeValues) {
+
+		String namesSeparated = "(";
+		String valuesSeparated = "(";
+		for (int i = 0; i < attributeNames.length - 1; i++) {
+			namesSeparated += (attributeNames[i] + ", ");
+			valuesSeparated += ("'" + attributeValues[i] + "', ");
 		}
-		namesSeparated+=(attributeNames[attributeNames.length-1]+")");
-		valuesSeparated+=("'"+attributeValues[attributeValues.length-1]+"')");
-		String insertTableSQL = "INSERT INTO " + tableName + namesSeparated+" VALUES" + valuesSeparated;
+		namesSeparated += (attributeNames[attributeNames.length - 1] + ")");
+		valuesSeparated += ("'" + attributeValues[attributeValues.length - 1] + "')");
+		String insertTableSQL = "INSERT INTO " + tableName + namesSeparated + " VALUES"
+				+ valuesSeparated;
 		try {
 			insert = database.prepareStatement(insertTableSQL);
 			System.out.println("Updating Insert query...");
@@ -137,7 +129,7 @@ public class Functionality {
 		}
 	}
 
-	public boolean customSendQuery(String query){
+	public boolean customSendQuery(String query) {
 		try {
 			send = database.prepareStatement(query);
 			System.out.println("Updating Send query...");
@@ -151,7 +143,7 @@ public class Functionality {
 			return false;
 		}
 	}
-	
+
 	public String[][] read(String tableName, String[] attributes) {
 		String thingsToSeeSeparatedByCommas = "";
 		for (int i = 0; i < attributes.length - 1; i++) {
@@ -192,7 +184,7 @@ public class Functionality {
 		for (int i = 0; i < components.length; i++) {
 			if (components[i].toUpperCase().equals("SELECT")) {
 				for (int j = i + 1; j < components.length; j++) {
-					if (!components[j].toUpperCase().equals("DISTINCT")){
+					if (!components[j].toUpperCase().equals("DISTINCT")) {
 						if (components[j].charAt(components[j].length() - 1) == (44)) {
 							titles.add(components[j].substring(0, components[j].length() - 1));
 							columns++;
