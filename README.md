@@ -8,6 +8,7 @@
 - Eclipse Luna
 - Java 8
 - JDBC (Included in Java8)
+- postgresql drivers for JDBC
 
 Repository is made to be cloned inside eclipse workspace.
 In a terminal type:
