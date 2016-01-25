@@ -2,6 +2,8 @@ package unimensa;
 
 import java.util.Arrays;
 
+import com.sun.xml.internal.ws.api.addressing.WSEndpointReference.Metadata;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -53,6 +55,7 @@ public class AdminPanel {
 	private VBox deletionbox;
 	private VBox editingbox;
 	private VBox replacementbox;
+	private VBox insertionvbox;
 	
 	public VBox start(){
 		vbox = new VBox();
@@ -139,7 +142,42 @@ public class AdminPanel {
 		replacementbox.getChildren().add(tabs);
 		return replacementbox;
 	}
+
+	private VBox insertionViewAdmin(){
+		insertionvbox = new VBox();
+		ComboBox<String> tablesdropdown = getDropDown();
+		TextField inputvalues = new TextField("Please write the attributes ");
+		Button insertbutton = new Button();
+		insertionvbox.getChildren().add(tablesdropdown);
+		insertionvbox.getChildren().add(inputvalues);
+		insertionvbox.getChildren().add(insertbutton);
+		insertbutton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				String tablename = tablesdropdown.getSelectionModel().getSelectedItem();
+			}
+		});
+		
+		tablesdropdown.valueProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+				
+			}
+		});
+		
+		return vbox;
+	}
 	
+	private ComboBox<String> getDropDown(){
+		ComboBox<String> dropdown = new ComboBox<String>();
+		dropdown.setPromptText("Select any table:");
+		dropdown.getItems().addAll(new String[]{MetaData.unimensa()[0],MetaData.chef()[0],MetaData.dailymenu()[0], MetaData.dish()[0], MetaData.employee()[0],
+				MetaData.ingredient()[0], MetaData.menuprice()[0], MetaData.staffmember()[0], MetaData.has()[0], MetaData.cater()[0], MetaData.job()[0],
+				MetaData.lists()[0], MetaData.contains()[0], MetaData.provided()[0], MetaData.made()[0]});
+		return dropdown;
+	}
+	
+	//this one is finished
 	private VBox tableViewAdmin(){
 		twBox = new VBox();
 		twBox.setPadding(new Insets(10, 0, 10, 0));
@@ -223,7 +261,7 @@ public class AdminPanel {
 				tableVBox.getChildren().add(root);
 			}
 		});
-		update();
+		//update();
 		return twBox;
 	}
 	
