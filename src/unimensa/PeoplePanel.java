@@ -49,6 +49,7 @@ public class PeoplePanel{
 		knownQueries.getItems().add("Distributors of a specific plate");
 		
 		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
 				tableVBox.getChildren().clear();
@@ -101,6 +102,7 @@ public class PeoplePanel{
 				data.remove(0);
 				TableView<String[]> table = new TableView<>();
 				for (int i = 0; i < dataArray[0].length; i++) {
+					@SuppressWarnings("rawtypes")
 					TableColumn tc = new TableColumn(dataArray[0][i]);
 					final int colNo = i;
 					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {

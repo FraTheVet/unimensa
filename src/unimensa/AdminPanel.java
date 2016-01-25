@@ -15,6 +15,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -97,7 +100,18 @@ public class AdminPanel {
 		return vbox;
 	}
 	private VBox mainViewAdmin(){
+		TabPane tabs = new TabPane();
+		Tab insertion = new Tab("View Data");
+		Tab editing = new Tab("Editing Data");
+		tabs.getTabs().add(insertion);
+		tabs.getTabs().add(editing);
+		tabs.setPadding(new Insets(10,10,10,10));
+		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+				
+		VBox insertionbox = new VBox();
 		VBox replacementbox = new VBox();
+		
+		insertion.setContent(insertionbox);
 		
 		knownQueries = new ComboBox<String>();
 		knownQueries.setPromptText("See any of the available tables!");
@@ -173,9 +187,11 @@ public class AdminPanel {
 				tableVBox.getChildren().add(root);
 			}
 		});
-		
-		replacementbox.getChildren().add(knownQueries);
-		replacementbox.getChildren().add(tableVBox);
+		insertionbox.getChildren().add(knownQueries);
+		insertionbox.getChildren().add(tableVBox);
+		replacementbox.getChildren().add(tabs);
+		//replacementbox.getChildren().add(knownQueries);
+		//replacementbox.getChildren().add(tableVBox);
 		
 		return replacementbox;
 	}
