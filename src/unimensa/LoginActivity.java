@@ -12,7 +12,7 @@ public class LoginActivity {
 	private Scene scene;
 	private TabPane tabs;
 	private Tab people;
-	private Tab admin;
+	public static Tab admin;
 	private VBox peopleVBox;
 	private VBox adminVBox;
 //	private ComboBox<String> knownQueries;
