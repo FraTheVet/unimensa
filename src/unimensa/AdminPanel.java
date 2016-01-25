@@ -33,6 +33,7 @@ import javafx.util.Callback;
 
 public class AdminPanel {
 	private VBox vbox;
+	private VBox twBox;
 	private VBox tableVBox;
 	private Label id;
 	private Label pw;
@@ -47,6 +48,11 @@ public class AdminPanel {
 	private StackPane root;
 	private String[][] dataArray;
 	private ObservableList<String[]> data;
+	private VBox viewingbox;
+	private VBox insertionbox;
+	private VBox deletionbox;
+	private VBox editingbox;
+	private VBox replacementbox;
 	
 	public VBox start(){
 		vbox = new VBox();
@@ -93,12 +99,16 @@ public class AdminPanel {
 					update();
 				}
 				else{
-					vbox.getChildren().add(failedLogin);
+					if(!vbox.getChildren().contains(failedLogin)){
+						vbox.getChildren().add(failedLogin);
+					}
+					pwTextField.setText("");
 				}
 			}
 		});
 		return vbox;
 	}
+	
 	private VBox tabManagmentAdmin(){
 		TabPane tabs = new TabPane();
 		Tab viewingtab = new Tab("View Data");
@@ -109,28 +119,31 @@ public class AdminPanel {
 		tabs.getTabs().add(insertiontab);
 		tabs.getTabs().add(deletiontab);
 		tabs.getTabs().add(editingtab);
-		tabs.setPadding(new Insets(10,10,10,10));
+		tabs.setPadding(new Insets(10,0,10,0));
 		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 			
-		VBox viewingbox = tableViewAdmin();
-		VBox insertionbox = new VBox();
-		VBox deletionbox = new VBox();
-		VBox editingbox = new VBox();
-		VBox replacementbox = new VBox();
+		viewingbox = tableViewAdmin();
+		insertionbox = new VBox();
+		deletionbox = new VBox();
+		editingbox = new VBox();
+		replacementbox = new VBox();
 		
 		viewingtab.setContent(viewingbox);
 		insertiontab.setContent(insertionbox);
 		deletiontab.setContent(deletionbox);
 		editingtab.setContent(editingbox);
 		
+		viewingbox.setPrefWidth(500);
+		viewingbox.setPrefHeight(500);
+		
 		replacementbox.getChildren().add(tabs);
 		return replacementbox;
 	}
 	
 	private VBox tableViewAdmin(){
-		VBox vbox = new VBox();
-		VBox insertionbox = new VBox();
-		vbox.getChildren().add(insertionbox);
+		twBox = new VBox();
+		twBox.setPadding(new Insets(10, 0, 10, 0));
+		
 		
 		knownQueries = new ComboBox<String>();
 		knownQueries.setPromptText("See any of the available tables!");
@@ -139,7 +152,10 @@ public class AdminPanel {
 		
 		tableVBox = new VBox();
 		tableVBox.setSpacing(5);
-		tableVBox.setPadding(new Insets(10, 0, 0, 10));
+		tableVBox.setPadding(new Insets(10, 0, 10, 0));
+		
+		twBox.getChildren().add(knownQueries);
+		twBox.getChildren().add(tableVBox);
 				
 		knownQueries.valueProperty().addListener(new ChangeListener<String>() {
 			@SuppressWarnings("unchecked")
@@ -207,9 +223,8 @@ public class AdminPanel {
 				tableVBox.getChildren().add(root);
 			}
 		});
-		insertionbox.getChildren().add(knownQueries);
-		insertionbox.getChildren().add(tableVBox);
-		return vbox;
+		update();
+		return twBox;
 	}
 	
 	private void update(){
