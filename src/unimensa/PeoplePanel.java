@@ -103,7 +103,7 @@ public class PeoplePanel {
 							.read("select distinct ingredient.name from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and dish.name = '"
 									+ ingredient + "'");
 					data = FXCollections.observableArrayList();
-					if (data.equals(null)) {
+					if (dataArray.length<2) {
 						JOptionPane.showMessageDialog(null,
 								"No data found for ingredient " + ingredient
 										+ ".\n\n Showing nothing.");
@@ -117,7 +117,7 @@ public class PeoplePanel {
 							.read("select distinct ingredient.name, distributor.id, distributor.typeofprovision from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and ingredient.id = provided.ingredientid and distributor.id = provided.distributorid and dish.name = '"
 									+ ingredient + "'");
 					data = FXCollections.observableArrayList();
-					if (data.equals(null)) {
+					if (dataArray.length<2) {
 						JOptionPane.showMessageDialog(null,
 								"No data found for ingredient " + ingredient
 										+ ".\n\n Showing nothing.");

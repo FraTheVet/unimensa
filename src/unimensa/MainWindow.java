@@ -135,7 +135,10 @@ public class MainWindow extends Application {
 				}
 				if (connected==-1){
 					failedLogin.setText("Wrong credentials or DB offline/non existent");
-					grid.add(failedLogin, 0, 7);
+					pwBox.setText("");
+					if (!grid.getChildren().contains(failedLogin)){
+						grid.add(failedLogin, 0, 7);
+					}
 				}
 				else if (connected==-2){
 					failedLogin.setText("Drivers for PostgreSQL missing");
