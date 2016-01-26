@@ -1,11 +1,7 @@
 package unimensa;
 
 import java.util.Arrays;
-
 import javax.swing.JOptionPane;
-
-import com.sun.xml.internal.ws.api.addressing.WSEndpointReference.Metadata;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -188,6 +184,7 @@ public class AdminPanel {
 				}
 			}
 		});
+		bt.setStyle("-fx-base: #ff0000");
 		deletealllcbox.getChildren().add(bt);
 		return deletealllcbox;
 	}
@@ -214,7 +211,7 @@ public class AdminPanel {
 			public void handle(ActionEvent arg0) {
 				String tablenameselected = tablesdropdown.getSelectionModel().getSelectedItem();
 				int i = 0, count = 0;
-				for (String retval : inputvalues.getText().split(",")) {
+				for (@SuppressWarnings("unused") String retval : inputvalues.getText().split(",")) {
 					count++;
 				}
 
@@ -231,6 +228,7 @@ public class AdminPanel {
 		tablesdropdown.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+				@SuppressWarnings("unused")
 				String tableName = "";
 				attributes = null;
 				String attributesstr = "Make the insertion look like this:\n";
