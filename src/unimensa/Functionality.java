@@ -3,6 +3,8 @@ package unimensa;
 import java.sql.*;
 import java.util.ArrayList;
 
+import org.postgresql.util.PSQLException;
+
 public class Functionality {
 	private Connection database;
 	private PreparedStatement insert;
@@ -79,7 +81,6 @@ public class Functionality {
 			return true;
 		} catch (SQLException e) {
 			System.out.println("Connection lost while committing Insert query.");
-			e.printStackTrace();
 			return false;
 		}
 	}
