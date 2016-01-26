@@ -35,7 +35,7 @@ public class PeoplePanel {
 
 	public VBox start() {
 		calendar = new GregorianCalendar();
-		dow= calendar.get(Calendar.DAY_OF_WEEK)-1;
+		dow = calendar.get(Calendar.DAY_OF_WEEK) - 1;
 		wom = calendar.get(Calendar.WEEK_OF_MONTH);
 		vbox = new VBox();
 		tableVBox = new VBox();
@@ -83,7 +83,8 @@ public class PeoplePanel {
 							.read("select dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.dow = "
 									+ dow
 									+ " and dailymenu.wom = "
-									+ wom + " and dailymenu.night = " + night);
+									+ wom
+									+ " and dailymenu.night = " + night);
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 3) {
@@ -95,49 +96,57 @@ public class PeoplePanel {
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 4) {
 					ingredient = JOptionPane
 							.showInputDialog("Which dish do you want to get the ingredients of?");
-					ingredient = ingredient.toLowerCase();
-					dataArray = MetaData.func
-							.read("select distinct ingredient.name from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and dish.name = '"
-									+ ingredient + "'");
-					data = FXCollections.observableArrayList();
-					if (dataArray.length < 2) {
-						JOptionPane.showMessageDialog(null, "No data found for ingredient "
-								+ ingredient + ".\n\n Showing nothing.");
+					try {
+						ingredient = ingredient.toLowerCase();
+						dataArray = MetaData.func
+								.read("select distinct ingredient.name from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and dish.name = '"
+										+ ingredient + "'");
+						data = FXCollections.observableArrayList();
+						if (dataArray.length < 2) {
+							JOptionPane.showMessageDialog(null, "No data found for ingredient "
+									+ ingredient + ".\n\n Showing nothing.");
+						}
+					} catch (NullPointerException e) {
 					}
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 5) {
 					ingredient = JOptionPane
 							.showInputDialog("Which dish do you want to get the distributors of?");
-					ingredient = ingredient.toLowerCase();
-					dataArray = MetaData.func
-							.read("select distinct ingredient.name, distributor.id, distributor.typeofprovision from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and ingredient.id = provided.ingredientid and distributor.id = provided.distributorid and dish.name = '"
-									+ ingredient + "'");
-					data = FXCollections.observableArrayList();
-					if (dataArray.length < 2) {
-						JOptionPane.showMessageDialog(null, "No data found for ingredient "
-								+ ingredient + ".\n\n Showing nothing.");
+					try {
+						ingredient = ingredient.toLowerCase();
+						dataArray = MetaData.func
+								.read("select distinct ingredient.name, distributor.id, distributor.typeofprovision from distributor, dish, ingredient, made, provided where ingredient.id = made.iding and dish.id = made.iddish and ingredient.id = provided.ingredientid and distributor.id = provided.distributorid and dish.name = '"
+										+ ingredient + "'");
+						data = FXCollections.observableArrayList();
+						if (dataArray.length < 2) {
+							JOptionPane.showMessageDialog(null, "No data found for ingredient "
+									+ ingredient + ".\n\n Showing nothing.");
+						}
+					} catch (NullPointerException e) {
 					}
 				}
-
-				data.addAll(Arrays.asList(dataArray));
-				data.remove(0);
-				TableView<String[]> table = new TableView<>();
-				for (int i = 0; i < dataArray[0].length; i++) {
-					@SuppressWarnings("rawtypes")
-					TableColumn tc = new TableColumn(dataArray[0][i]);
-					final int colNo = i;
-					tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
-						@Override
-						public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
-							return new SimpleStringProperty((p.getValue()[colNo]));
-						}
-					});
-					tc.setPrefWidth(90);
-					table.getColumns().add(tc);
+				try {
+					data.addAll(Arrays.asList(dataArray));
+					data.remove(0);
+					TableView<String[]> table = new TableView<>();
+					for (int i = 0; i < dataArray[0].length; i++) {
+						@SuppressWarnings("rawtypes")
+						TableColumn tc = new TableColumn(dataArray[0][i]);
+						final int colNo = i;
+						tc.setCellValueFactory(new Callback<CellDataFeatures<String[], String>, ObservableValue<String>>() {
+							@Override
+							public ObservableValue<String> call(CellDataFeatures<String[], String> p) {
+								return new SimpleStringProperty((p.getValue()[colNo]));
+							}
+						});
+						tc.setPrefWidth(90);
+						table.getColumns().add(tc);
+					}
+					table.setItems(data);
+					root.getChildren().add(table);
+					tableVBox.getChildren().add(root);
+				} catch (NullPointerException e) {
 				}
-				table.setItems(data);
-				root.getChildren().add(table);
-				tableVBox.getChildren().add(root);
 			}
 		});
 		vbox.getChildren().add(knownQueries);
