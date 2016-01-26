@@ -64,7 +64,8 @@ public class AdminPanel {
 	private VBox deleteVBox;
 	private String key;
 	private VBox customVBox;
-	private VBox customvbox;
+	private VBox custombox;
+	private VBox deleteallbox;
 
 	public VBox start() {
 		vbox = new VBox();
@@ -129,11 +130,13 @@ public class AdminPanel {
 		Tab deletiontab = new Tab("Delete Data");
 		Tab editingtab = new Tab("Edit Data");
 		Tab customtab = new Tab("Custom Write Query");
+		Tab deleteall = new Tab("Delete All");
 		tabs.getTabs().add(viewingtab);
 		tabs.getTabs().add(insertiontab);
 		tabs.getTabs().add(deletiontab);
 		tabs.getTabs().add(editingtab);
 		tabs.getTabs().add(customtab);
+		tabs.getTabs().add(deleteall);
 		tabs.setPadding(new Insets(10, 0, 10, 0));
 		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
@@ -141,20 +144,52 @@ public class AdminPanel {
 		insertionbox = insertionViewAdmin();
 		deletionbox = deleteViewAdmin();
 		editingbox = updateViewAdmin();
-		customvbox = customViewAdmin();
+		custombox = customViewAdmin();
+		deleteallbox = deleteAllViewAdmin();
+		
 		replacementbox = new VBox();
 
 		viewingtab.setContent(viewingbox);
 		insertiontab.setContent(insertionbox);
 		deletiontab.setContent(deletionbox);
 		editingtab.setContent(editingbox);
-		customtab.setContent(customvbox);
+		customtab.setContent(custombox);
+		deleteall.setContent(deleteallbox);
 
 		viewingbox.setPrefWidth(500);
 		viewingbox.setPrefHeight(500);
 
 		replacementbox.getChildren().add(tabs);
 		return replacementbox;
+	}
+
+	private VBox deleteAllViewAdmin() {
+		VBox deletealllcbox = new VBox();
+		deletealllcbox.setPadding(new Insets(10, 0, 10, 0));
+		Button bt = new Button("Click Here to DELETE ALL!");
+		
+		bt.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				boolean confirmed = false;
+				int counter = 10, confirmednum = 0;
+				while(confirmed || counter > 0){
+					confirmednum = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all?");
+					if(confirmednum == JOptionPane.OK_OPTION){
+						confirmed = true;
+						counter--;
+					}else{
+						confirmed = false;
+					}
+					if(counter == 0){
+						counter = 10;
+						break;
+					}
+				}
+			}
+		});
+		deletealllcbox.getChildren().add(bt);
+		return deletealllcbox;
 	}
 
 	private VBox insertionViewAdmin() {
