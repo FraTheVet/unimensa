@@ -27,13 +27,16 @@ public class PeoplePanel {
 	private StackPane root;
 	private String[][] dataArray;
 	private ObservableList<String[]> data;
-	private Calendar calendar;
+	private static Calendar calendar;
 	private int night;
 	private String ingredient;
+	private int dow;
+	private int wom;
 
 	public VBox start() {
 		calendar = new GregorianCalendar();
-		calendar.setFirstDayOfWeek(Calendar.MONDAY);
+		dow= calendar.get(Calendar.DAY_OF_WEEK)-1;
+		wom = calendar.get(Calendar.WEEK_OF_MONTH);
 		vbox = new VBox();
 		tableVBox = new VBox();
 		tableVBox.setSpacing(5);
@@ -76,18 +79,17 @@ public class PeoplePanel {
 						JOptionPane.showMessageDialog(null, "Input not valid, default 0 set");
 						night = 0;
 					}
-
 					dataArray = MetaData.func
 							.read("select dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.dow = "
-									+ calendar.DAY_OF_WEEK
+									+ dow
 									+ " and dailymenu.wom = "
-									+ calendar.WEEK_OF_MONTH + " and dailymenu.night = " + night);
+									+ wom + " and dailymenu.night = " + night);
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 3) {
 					dataArray = MetaData.func
 							.read("select dailymenu.dow, dailymenu.night, dish.name from dish, dailymenu, contains where dish.id = contains.iddish and dailymenu.id = contains.iddaily and dailymenu.wom = "
-									+ calendar.WEEK_OF_MONTH);
+									+ wom);
 					data = FXCollections.observableArrayList();
 				}
 				if (knownQueries.getSelectionModel().getSelectedIndex() == 4) {
